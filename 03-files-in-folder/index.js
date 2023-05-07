@@ -17,4 +17,4 @@ fs.readdir(newPath, (err, files) => {
       });
     });
   }
-})
+});
