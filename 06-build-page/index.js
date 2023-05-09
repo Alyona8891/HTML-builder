@@ -4,6 +4,14 @@ const path = require('path');
 
 let template = '';
 
+async function delFolder(src) {
+  try {
+    await fsPr.rm(src, {recursive: true});
+  } catch(err) {
+    console.log(err);
+  }
+}
+
 async function saveTemplateFile() {
   try {
     template = await fsPr.readFile(path.join(__dirname, 'template.html'), 'utf-8');
@@ -59,7 +67,7 @@ async function createFolder(src) {
 async function copyAssets(currentSrc, copySrc) {
   try {
     const files = await fsPr.readdir(currentSrc);
-    for(let file of files) {
+    for(const file of files) {
       const newCurrentSrc = path.join(currentSrc, file);
       const newCopySrc = path.join(copySrc, file);
       try {
@@ -84,9 +92,16 @@ async function copyAssets(currentSrc, copySrc) {
 }
 
 async function build() {
+  try {
+    await fsPr.access(path.join(__dirname, 'project-dist'));
+    await delFolder(path.join(__dirname, 'project-dist'));
+    await createFolder(path.join(__dirname, 'project-dist'));
+  } catch(err) {
+    await createFolder(path.join(__dirname, 'project-dist'));
+  }
+
   await saveTemplateFile();
   await searchTagsTemplateFile();
-  await createFolder(path.join(__dirname, 'project-dist'));
   await createFileHtml();
   await createFileCss();
   await createFolder(path.join(__dirname, 'project-dist', 'assets'));
